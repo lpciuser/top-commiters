@@ -1,0 +1,6 @@
+require "open-uri"
+require "json"
+require_relative "github/api_object"
+require_relative "github/user"
+require_relative "github/repo"
+require_relative "github/commit"
