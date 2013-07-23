@@ -1,21 +1,14 @@
 module GitHub
   
   class Repo
-    include ApiObject
     attr_reader :user, :name
 
-    def initialize(*args)
-      case args[0]
-        when Hash
-          @user, @name = User.new(args[0][:owner]), args[0][:repo]
-        when User
-          @user, @name = args[0],args[1]
-        when String
-          params = args[0].split('/')
-          @user, @name = User.new(params[0]), params[1]
-        else
-          raise ArgumentError
-      end
+    def initialize(attr = {})
+      attr.reverse_merge!(client: Client)
+
+      @client = attr[:client]
+      @user = attr[:user]
+      @name = attr[:repo_name]
     end
 
     def path
@@ -24,13 +17,28 @@ module GitHub
 
     def commits
       commits! if @commits.nil?
+      @commits
     end
 
     def commits!
       response = json("#{path}/commits")
       @commits = response.map do |commit| 
-        Commit.new(@user, self, commit.sha) 
+        Commit.new(client: @client, user: @user, repo: self, sha: commit.sha) 
       end
+      @commits
+    end
+
+    def loaded?
+      not @hash.nil?
+    end
+
+    def hash
+      @hash ||= @client.get_hash(path)
+      @hash
+    end
+
+    def method_missing(method, *args)
+      hash.send(method, *args)
     end
 
     def to_s

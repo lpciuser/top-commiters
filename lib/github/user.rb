@@ -1,19 +1,13 @@
 module GitHub
   
   class User
-    include ApiObject
     attr_reader :login
 
-    def initialize(*args)
-      case args[0]
-        when Hash
-          @hash = args[0]
-          @login = @hash['login']
-        when String
-          @login = args[0]
-        else
-          raise ArgumentError
-      end
+    def initialize(attr = {})
+      attr.reverse_merge!(client: Client)
+
+      @client = attr[:client]
+      @login = attr[:login]
     end
 
     def path
@@ -21,7 +15,20 @@ module GitHub
     end
 
     def repo(repo_name)
-      Repo.new(self, repo_name)
+      Repo.new(client: @client, user: self, repo_name: repo_name)
+    end
+
+    def loaded?
+      not @hash.nil?
+    end
+
+    def hash
+      @hash ||= @client.get_hash(path)
+      @hash
+    end
+
+    def method_missing(method, *args)
+      hash.send(method, *args)
     end
 
     def to_s
