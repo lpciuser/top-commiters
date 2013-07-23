@@ -1,28 +1,35 @@
 module GitHub
 
-  class ImprovedHash < Hash
+  class ImprovedHash
 
-    def initialize(source_hash = nil, default = nil, &block)
-      improve(source_hash, default, &block) if source_hash.is_a?(Hash)
-      default ? super(default) : super(&block)
+    def initialize(source_hash = nil, default = nil, &block) 
+      @hash = default ? Hash.new(default) : Hash.new(&block)
+      improve(source_hash, default, &block) unless source_hash.nil?
     end
-
-    alias_method :set_value, :[]=
-    alias_method :get_value, :[]
 
     def improve(source_hash, default, &block)
       source_hash.each do |k, val|
         if val.is_a?(Hash)
-          set_value(k, self.class.new(val, default, &block))
+          @hash[k] = self.class.new(val, default, &block)
         else
-          set_value(k, val)
+          @hash[k] = val
         end
       end
     end
 
+    def ==(other_hash)
+      if other_hash.is_a?(self.class)
+        super
+      else
+        @hash == other_hash
+      end
+    end
+
     def method_missing(method, *args)
-      if has_key?(method.to_s)
-        get_value(method.to_s)
+      if @hash.respond_to?(method)
+        @hash.send(method, *args)
+      elsif @hash.has_key?(method.to_s)
+        @hash[method.to_s]
       else
         super
       end
