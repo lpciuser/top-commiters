@@ -22,18 +22,15 @@ module GitHub
       "repos/#{@user}/#{name}"
     end
 
-    def hash
-      @hash = json(path) if @hash.nil?
-      @hash
-    end
-
     def commits
       commits! if @commits.nil?
     end
 
     def commits!
       response = json("#{path}/commits")
-      @commits = response.map { |commit_hash| Commit.new(commit_hash) }
+      @commits = response.map do |commit| 
+        Commit.new(@user, self, commit.sha) 
+      end
     end
 
     def to_s

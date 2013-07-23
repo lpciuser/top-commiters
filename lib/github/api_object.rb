@@ -9,7 +9,20 @@ module GitHub
 
     def json(path, options = {})
       request = get(path, options)
-      JSON.parse(request.gets)
+      ImprovedHash.new(JSON.parse(request.gets))
+    end
+
+    def loaded?
+      not @hash.nil?
+    end
+
+    def hash
+      @hash ||= json(path)# if @hash.nil?
+      @hash
+    end
+
+    def method_missing(*args)
+      hash.send(*args)
     end
   end
 end

@@ -20,23 +20,8 @@ module GitHub
       "users/#{@login}"
     end
 
-    def hash
-      @hash = json(path) if @hash.nil?
-      @hash
-    end
-
     def repo(repo_name)
       Repo.new(self, repo_name)
-    end
-
-    def method_missing(method, *args)
-      method_string = method.to_s
-
-      if hash.has_key?(method_string)
-        hash[method_string]
-      else
-        super
-      end
     end
 
     def to_s

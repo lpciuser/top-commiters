@@ -40,15 +40,15 @@ describe User do
       })
   end
 
-  let(:user_hash) { JSON.parse(user_json_string) }
+  let(:user_hash) { ImprovedHash.new(JSON.parse(user_json_string)) }
   before { user.stub(:json).with(/users\/octocat/).and_return(user_hash) }
 
   it { should respond_to :login }
   it { should respond_to :repo }
 
-  it "should provide direct access to @hash" do
+  it "should provide method-like access to @hash" do
     user.hash.each do |k, val|
-      expect(user.send(k.to_sym)).to eq(val)
+      expect(user.send(k)).to eq(val)
     end
   end
 

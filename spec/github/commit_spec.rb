@@ -1,4 +1,6 @@
 require "spec_helper"
+require "github"
+include GitHub
 
 describe Commit do
   let(:commit_json_string) do
@@ -61,36 +63,18 @@ describe Commit do
       ]
     })
   end
-  let(:commit_hash) { JSON.parse(commit_json_string) } 
-  let(:commit) { Commit.new(commit_hash) }
+  let(:commit_hash) { ImprovedHash.new(JSON.parse(commit_json_string)) } 
+  let(:commit) { Commit.new("octocat", "Hello-World", "commit_sha") }
+  before { commit.stub(:json).and_return(commit_hash) }
   subject { commit }
-  before { commit.stub(:json) }
 
   it { should respond_to(:user) }
   it { should respond_to(:repo) }
-  it { should respond_to(:hash) }
   it { should respond_to(:sha) }
-
-  its(:repo) { should be_an_instance_of(Repo) }
-  its(:user) { should be_an_instance_of(User) }
-
-  context "when initialized with hash" do
-    before { commit.stub(:json) }
-
-    it "should not load remote data" do 
-      expect(commit.hash).to eq(commit_hash)      
-    end
-  end
-
-  context "when initialized with string" do 
-    let(:commit) { Commit.new('octocat/Hello-World/6dcb09b5b57875f334f61aebed695e2e4193db5e') }
-        
-    it "should load remote data" do 
-      remote_hash = JSON.parse('{ "remote": true }')
-
-      commit.stub(:json).and_return(remote_hash)
-      puts commit.hash
-      expect(commit.hash['remote']).to be_true 
-    end
+  
+  it "should lazy-load commit data" do 
+    expect(commit).not_to be_loaded
+    commit.hash
+    expect(commit).to be_loaded
   end
 end
