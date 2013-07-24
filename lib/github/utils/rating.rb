@@ -52,7 +52,7 @@ module GitHub
       def build(args = {}, &block)
         args.reverse_merge!(default: 0, target: [])
         rating = Hash.new(args[:default])
-        
+
         @source.each do |n|      
           subject = deep_key(n, args[:subject])
           value = deep_key(n, args[:target])            

@@ -46,6 +46,10 @@ module GitHub
       end
     end
 
+    def [](key)
+      @hash[key]
+    end
+
     # 
     # If self and stored Hash wasn't respond to method 
     # it returns hash value with key == method.to_s

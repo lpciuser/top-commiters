@@ -54,9 +54,9 @@ module GitHub
     # 
     # @return [Array] List of GitHub::Commits
     def commits!
-      response = json("#{path}/commits")
+      response = @client.get_json("#{path}/commits")
       @commits = response.map do |commit| 
-        Commit.new(client: @client, user: @user, repo: self, sha: commit.sha) 
+        Commit.new(client: @client, user: @user, repo: self, sha: commit['sha']) 
       end
       @commits
     end
