@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'gli'
+require_relative '../lib/github'
+require_relative '../lib/github/utils'
+
+include GLI::App
+
+program_desc 'Ratings Builder for GitHub commits'
+
+default_command :build
+
+desc 'Rating builder'
+long_desc 'Build custom ratings on specified repository commits. 
+Command args is keypaths to subject and target
+If target not specified, then builder count appearances of subject.
+Example of building rating of commits by number of deletions in octocat/Hello-World repo:
+
+rating build sha stats/deletions -r octocat/Hello-World'
+command :build do |c|
+  c.desc 'Sets the separator to split strings'
+  c.flag [:s, :separator], :default_value => '/', :type => String
+  c.desc 'GitHub user and repo separated by --separator. Example: username/repo_name'
+  c.flag [:r, :repo], :type => String
+
+  c.action do |global_options, options, args|
+    help_now!('you should specify repository') if options[:repo].nil?
+    help_now!('you should specify target') if args.size < 1
+
+    repository_params = options[:repo].split(options[:separator])
+    repo = GitHub::Repo.new(user: repository_params[0], repo_name: repository_params[1])    
+    
+    subject = args[0].split(options[:separator])
+    target = args[1].nil? ? [] : args[1].split(options[:separator])
+
+    commits = repo.commits
+    builder = GitHub::Utils::Rating.new(commits)    
+    rating = builder.build(subject: subject, target: target)
+
+    rating = rating.sort { |a, b| b[1] <=> a[1] }
+    rating.each do |k, val|
+      printf("%5d - %s\n", val, k)
+    end
+  end
+end
+
+exit run(ARGV)
