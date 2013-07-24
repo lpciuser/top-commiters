@@ -20,10 +20,10 @@ Or make it executable
 ### CLI Ratings builder examples
 ##### Build rating of mugimaru/top-commiters commits by number of deletions
 
-    bin/rating -r mugimaru/top-commiters sha stats/deletions
+    bin/rating build -r mugimaru/top-commiters sha stats/deletions
 ##### Build rating of mugimaru/top-commiters committers by number of insertions
 
-    bin/rating -r mugimaru/top-commiters user stats/insertions
+    bin/rating build -r mugimaru/top-commiters author/login stats/insertions
 ## Contributing
 
 1. Fork it
