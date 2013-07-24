@@ -1,5 +1,3 @@
---markup markdown
---markup-provider redcarpet
 --charset utf-8
 --readme README.md
 -
